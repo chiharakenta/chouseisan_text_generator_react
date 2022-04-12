@@ -21,7 +21,7 @@ class App extends Component {
         times.push({
           time: i,
           active: false,
-          timestamp: today.getTime() + i,
+          timestamp: String(today.getTime()) + String(i),
         });
       }
       schedules.push({
@@ -42,7 +42,9 @@ class App extends Component {
     let schedules = this.state.schedules?.slice();
     for (let i: number = 0; i < schedules?.length; i++) {
       for (let j: number = 0; j < schedules[i].times.length; j++) {
-        if (schedules[i].times[j].timestamp == event.target.dataset.timestamp) {
+        if (
+          schedules[i].times[j].timestamp === event.target.dataset.timestamp
+        ) {
           schedules[i].times[j].active = !schedules[i].times[j].active;
           this.setState({
             schedules: schedules,
