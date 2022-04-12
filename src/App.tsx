@@ -5,11 +5,9 @@ import { Button } from 'react-bootstrap';
 import { State } from './types/State';
 import { Schedule } from './types/Schedule';
 import { Time } from './types/Time';
-
-import { times } from './constants/times';
 class App extends Component {
   state: State = {
-    schedules: null,
+    schedules: [],
   };
 
   componentDidMount() {
@@ -18,6 +16,14 @@ class App extends Component {
     let schedules: Array<any> = [];
     const dayString: Array<string> = ['日', '月', '火', '水', '木', '金', '土'];
     for (let i = 0; i <= daysToSunday; i++) {
+      const times: Array<any> = [];
+      for (let i: number = 0; i < 24; i++) {
+        times.push({
+          time: i,
+          active: false,
+          timestamp: today.getTime() + i,
+        });
+      }
       schedules.push({
         year: today.getFullYear(),
         month: today.getMonth() + 1,
@@ -30,6 +36,21 @@ class App extends Component {
     this.setState({
       schedules: schedules,
     });
+  }
+
+  selectSchedule(event: any) {
+    let schedules = this.state.schedules?.slice();
+    for (let i: number = 0; i < schedules?.length; i++) {
+      for (let j: number = 0; j < schedules[i].times.length; j++) {
+        if (schedules[i].times[j].timestamp == event.target.dataset.timestamp) {
+          schedules[i].times[j].active = !schedules[i].times[j].active;
+          this.setState({
+            schedules: schedules,
+          });
+          return;
+        }
+      }
+    }
   }
 
   render() {
@@ -47,10 +68,13 @@ class App extends Component {
                     className="mx-1 mb-1"
                     variant="outline-primary"
                     size="sm"
+                    active={time.active}
                     data-year={schedule.year}
                     data-month={schedule.month}
                     data-date={schedule.date}
                     data-day={schedule.day}
+                    data-timestamp={time.timestamp}
+                    onClick={this.selectSchedule.bind(this)}
                   >
                     {time.time}:00
                   </Button>
