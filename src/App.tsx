@@ -73,42 +73,67 @@ class App extends Component {
     scheduleTextElement.textContent = scheduleText;
   };
 
+  copyScheduleText: React.MouseEventHandler<HTMLButtonElement> = (event) => {
+    const schedule = event.currentTarget.value;
+    (async () => {
+      await navigator.clipboard.writeText(schedule);
+    })();
+    alert(
+      'スケジュールをコピーしました。\n調整さんの「日にち候補」に貼り付けてください。',
+    );
+    window.location.href = 'https://chouseisan.com/#tab2';
+  };
+
   render() {
     return (
       <div className="App">
-        <div className="d-flex">
-          {this.state.schedules?.map((schedule: Schedule) => {
-            return (
-              <div
-                className="schedule d-flex flex-column px-1 border-start border-end"
-                key={`${schedule.year}/${schedule.month}/${schedule.date}`}
-              >
-                <h5 className="date-text">
-                  {schedule.month}/{schedule.date}({schedule.day})
-                </h5>
-                {schedule.times?.map((time: Time) => (
-                  <Button
-                    className="mx-1 mb-1"
-                    variant="outline-primary"
-                    size="sm"
-                    active={time.active}
-                    data-year={schedule.year}
-                    data-month={schedule.month}
-                    data-date={schedule.date}
-                    data-day={schedule.day}
-                    data-timestamp={time.timestamp}
-                    key={time.timestamp}
-                    onClick={this.selectSchedule.bind(this)}
-                  >
-                    {time.time}:00
-                  </Button>
-                ))}
-              </div>
-            );
-          })}
+        <h1>次回のイベントの候補時間</h1>
+        <div>
+          <h2>スケジュールを選択</h2>
+          <div className="d-flex">
+            {this.state.schedules?.map((schedule: Schedule) => {
+              return (
+                <div
+                  className="schedule d-flex flex-column px-1 border-start border-end"
+                  key={`${schedule.year}/${schedule.month}/${schedule.date}`}
+                >
+                  <h5 className="date-text">
+                    {schedule.month}/{schedule.date}({schedule.day})
+                  </h5>
+                  {schedule.times?.map((time: Time) => (
+                    <Button
+                      className="mx-1 mb-1"
+                      variant="outline-primary"
+                      size="sm"
+                      active={time.active}
+                      data-year={schedule.year}
+                      data-month={schedule.month}
+                      data-date={schedule.date}
+                      data-day={schedule.day}
+                      data-timestamp={time.timestamp}
+                      key={time.timestamp}
+                      onClick={this.selectSchedule.bind(this)}
+                    >
+                      {time.time}:00
+                    </Button>
+                  ))}
+                </div>
+              );
+            })}
+          </div>
         </div>
         <div>
-          <textarea id="scheduleText" cols={50} rows={20}></textarea>
+          <h2>調整さん用テキスト</h2>
+          <textarea id="scheduleText" cols={30} rows={10}></textarea>
+          <div>
+            <Button
+              variant="outline-success"
+              id="copy"
+              onClick={this.copyScheduleText.bind(this)}
+            >
+              コピー
+            </Button>
+          </div>
         </div>
       </div>
     );
