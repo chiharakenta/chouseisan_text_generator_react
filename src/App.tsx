@@ -49,10 +49,26 @@ class App extends Component {
           this.setState({
             schedules: schedules,
           });
+          this.createScheduleText();
           return;
         }
       }
     }
+  }
+
+  createScheduleText() {
+    let scheduleText: string = '';
+    this.state.schedules.forEach((schedule: Schedule) => {
+      schedule.times.forEach((time: Time) => {
+        if (time.active) {
+          const dateText = `${schedule.month}/${schedule.date}(${schedule.day})`;
+          const timeText = `${time.time}:00~${time.time + 1}:00`;
+          scheduleText = scheduleText + dateText + ' ' + timeText + '\n';
+        }
+      });
+    });
+    const scheduleTextElement: any = document.getElementById('scheduleText');
+    scheduleTextElement.textContent = scheduleText;
   }
 
   render() {
@@ -84,6 +100,9 @@ class App extends Component {
               </div>
             );
           })}
+        </div>
+        <div>
+          <textarea id="scheduleText" cols={50} rows={20}></textarea>
         </div>
       </div>
     );
