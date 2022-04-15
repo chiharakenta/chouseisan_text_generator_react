@@ -10,13 +10,13 @@ class App extends Component {
     schedules: [],
   };
 
-  componentDidMount() {
+  componentDidMount = () => {
     const today: Date = new Date();
     const daysToSunday: number = 7 - today.getDay();
-    let schedules: Array<any> = [];
+    let schedules: Array<Schedule> = [];
     const dayString: Array<string> = ['日', '月', '火', '水', '木', '金', '土'];
-    for (let i = 0; i <= daysToSunday; i++) {
-      const times: Array<any> = [];
+    for (let i: number = 0; i <= daysToSunday; i++) {
+      const times: Array<Time> = [];
       for (let i: number = 0; i < 24; i++) {
         times.push({
           time: i,
@@ -36,14 +36,15 @@ class App extends Component {
     this.setState({
       schedules: schedules,
     });
-  }
+  };
 
-  selectSchedule(event: any) {
+  selectSchedule: React.MouseEventHandler<HTMLButtonElement> = (event) => {
     let schedules = this.state.schedules?.slice();
     for (let i: number = 0; i < schedules?.length; i++) {
       for (let j: number = 0; j < schedules[i].times.length; j++) {
         if (
-          schedules[i].times[j].timestamp === event.target.dataset.timestamp
+          schedules[i].times[j].timestamp ===
+          event.currentTarget.dataset.timestamp
         ) {
           schedules[i].times[j].active = !schedules[i].times[j].active;
           this.setState({
@@ -54,9 +55,9 @@ class App extends Component {
         }
       }
     }
-  }
+  };
 
-  createScheduleText() {
+  createScheduleText = () => {
     let scheduleText: string = '';
     this.state.schedules.forEach((schedule: Schedule) => {
       schedule.times.forEach((time: Time) => {
@@ -67,9 +68,10 @@ class App extends Component {
         }
       });
     });
-    const scheduleTextElement: any = document.getElementById('scheduleText');
+    const scheduleTextElement: HTMLElement =
+      document.getElementById('scheduleText')!;
     scheduleTextElement.textContent = scheduleText;
-  }
+  };
 
   render() {
     return (
@@ -77,7 +79,10 @@ class App extends Component {
         <div className="d-flex">
           {this.state.schedules?.map((schedule: Schedule) => {
             return (
-              <div className="schedule d-flex flex-column px-1 border-start border-end">
+              <div
+                className="schedule d-flex flex-column px-1 border-start border-end"
+                key={`${schedule.year}/${schedule.month}/${schedule.date}`}
+              >
                 <h5 className="date-text">
                   {schedule.month}/{schedule.date}({schedule.day})
                 </h5>
@@ -92,6 +97,7 @@ class App extends Component {
                     data-date={schedule.date}
                     data-day={schedule.day}
                     data-timestamp={time.timestamp}
+                    key={time.timestamp}
                     onClick={this.selectSchedule.bind(this)}
                   >
                     {time.time}:00
