@@ -1,6 +1,6 @@
 import { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Button } from 'react-bootstrap';
+import { Container, Button } from 'react-bootstrap';
 
 import { State } from './types/State';
 import { Schedule } from './types/Schedule';
@@ -87,53 +87,61 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <h1>次回のイベントの候補時間</h1>
         <div>
-          <h2>スケジュールを選択</h2>
-          <div className="d-flex">
-            {this.state.schedules?.map((schedule: Schedule) => {
-              return (
-                <div
-                  className="schedule d-flex flex-column px-1 border-start border-end"
-                  key={`${schedule.year}/${schedule.month}/${schedule.date}`}
-                >
-                  <h5 className="date-text">
-                    {schedule.month}/{schedule.date}({schedule.day})
-                  </h5>
-                  {schedule.times?.map((time: Time) => (
-                    <Button
-                      className="mx-1 mb-1"
-                      variant="outline-primary"
-                      size="sm"
-                      active={time.active}
-                      data-year={schedule.year}
-                      data-month={schedule.month}
-                      data-date={schedule.date}
-                      data-day={schedule.day}
-                      data-timestamp={time.timestamp}
-                      key={time.timestamp}
-                      onClick={this.selectSchedule.bind(this)}
-                    >
-                      {time.time}:00
-                    </Button>
-                  ))}
-                </div>
-              );
-            })}
-          </div>
+          <Container>
+            <h1>次回のイベントの候補時間</h1>
+          </Container>
         </div>
         <div>
-          <h2>調整さん用テキスト</h2>
-          <textarea id="scheduleText" cols={30} rows={10}></textarea>
-          <div>
-            <Button
-              variant="outline-success"
-              id="copy"
-              onClick={this.copyScheduleText.bind(this)}
-            >
-              コピー
-            </Button>
-          </div>
+          <Container>
+            <h2>スケジュールを選択</h2>
+            <div className="d-flex">
+              {this.state.schedules?.map((schedule: Schedule) => {
+                return (
+                  <div
+                    className="schedule d-flex flex-column px-1 border-start border-end"
+                    key={`${schedule.year}/${schedule.month}/${schedule.date}`}
+                  >
+                    <h5 className="date-text">
+                      {schedule.month}/{schedule.date}({schedule.day})
+                    </h5>
+                    {schedule.times?.map((time: Time) => (
+                      <Button
+                        className="mx-1 mb-1"
+                        variant="outline-primary"
+                        size="sm"
+                        active={time.active}
+                        data-year={schedule.year}
+                        data-month={schedule.month}
+                        data-date={schedule.date}
+                        data-day={schedule.day}
+                        data-timestamp={time.timestamp}
+                        key={time.timestamp}
+                        onClick={this.selectSchedule.bind(this)}
+                      >
+                        {time.time}:00
+                      </Button>
+                    ))}
+                  </div>
+                );
+              })}
+            </div>
+          </Container>
+        </div>
+        <div>
+          <Container>
+            <h2>調整さん用テキスト</h2>
+            <textarea id="scheduleText" cols={30} rows={10}></textarea>
+            <div>
+              <Button
+                variant="outline-success"
+                id="copy"
+                onClick={this.copyScheduleText.bind(this)}
+              >
+                コピー
+              </Button>
+            </div>
+          </Container>
         </div>
       </div>
     );
