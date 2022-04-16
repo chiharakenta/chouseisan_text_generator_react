@@ -1,6 +1,6 @@
 import { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Container, Button, Form } from 'react-bootstrap';
+import { Container, Button, Form, Modal } from 'react-bootstrap';
 
 import { State } from './types/State';
 import { Schedule } from './types/Schedule';
@@ -8,6 +8,7 @@ import { Time } from './types/Time';
 class App extends Component {
   state: State = {
     schedules: [],
+    show: false,
   };
 
   componentWillMount = () => {
@@ -35,12 +36,12 @@ class App extends Component {
     }
     this.setState({
       schedules: schedules,
+      show: this.state.show,
     });
   };
 
   componentDidMount = () => {
     this.setQuietTimeSchedule();
-    this.createScheduleText();
   };
 
   handleChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
@@ -83,7 +84,6 @@ class App extends Component {
       for (let i: number = 0; i < stateSchedules.length; i++) {
         if (stateSchedules[i].day === eventTimeSchedule.day) {
           dateIndex = i;
-          break;
         }
       }
       eventTimeSchedule.times.forEach((quietTimeTime: number) => {
@@ -100,7 +100,9 @@ class App extends Component {
     });
     this.setState({
       schedules: stateSchedules,
+      show: this.state.show,
     });
+    this.createScheduleText();
   };
 
   selectSchedule: React.MouseEventHandler<HTMLButtonElement> = (event) => {
@@ -114,6 +116,7 @@ class App extends Component {
           schedules[i].times[j].active = !schedules[i].times[j].active;
           this.setState({
             schedules: schedules,
+            show: this.state.show,
           });
           this.createScheduleText();
           return;
@@ -131,6 +134,7 @@ class App extends Component {
     }
     this.setState({
       schedules: schedules,
+      show: this.state.show,
     });
   };
 
@@ -150,15 +154,29 @@ class App extends Component {
     scheduleTextElement.textContent = scheduleText;
   };
 
-  copyScheduleText: React.MouseEventHandler<HTMLButtonElement> = (event) => {
-    const schedule = event.currentTarget.value;
-    (async () => {
-      await navigator.clipboard.writeText(schedule);
-    })();
-    alert(
-      'スケジュールをコピーしました。\n調整さんの「日にち候補」に貼り付けてください。',
-    );
-    window.location.href = 'https://chouseisan.com/#tab2';
+  copyScheduleText: React.MouseEventHandler<HTMLButtonElement> = () => {
+    const scheduleText: string =
+      document.getElementById('scheduleText')!.textContent!;
+    navigator.clipboard.writeText(scheduleText).then(() => {
+      alert(
+        'スケジュールをコピーしました。\n調整さんの「日にち候補」に貼り付けてください。',
+      );
+      window.location.href = 'https://chouseisan.com/#tab2';
+    });
+  };
+
+  handleShow = () => {
+    this.setState({
+      schedules: this.state.schedules,
+      show: true,
+    });
+  };
+
+  handleClose = () => {
+    this.setState({
+      schedules: this.state.schedules,
+      show: false,
+    });
   };
 
   render() {
@@ -192,8 +210,30 @@ class App extends Component {
         </div>
         <div>
           <Container>
-            <h2>スケジュールを選択</h2>
-            <div className="d-flex">
+            <h2>調整さん用テキスト</h2>
+            <textarea id="scheduleText" cols={30} rows={10}></textarea>
+            <div className="mb-1">
+              <Button variant="outline-secondary" onClick={this.handleShow}>
+                時間を細かく指定
+              </Button>
+            </div>
+            <div>
+              <Button
+                variant="primary"
+                id="copy"
+                onClick={this.copyScheduleText.bind(this)}
+              >
+                コピーして調整さんに移動
+              </Button>
+            </div>
+          </Container>
+        </div>
+        <Modal show={this.state.show} onHide={this.handleClose}>
+          <Modal.Header closeButton>
+            <Modal.Title>時間を選択</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div className="d-flex overflow-scroll">
               {this.state.schedules?.map((schedule: Schedule) => {
                 return (
                   <div
@@ -224,23 +264,13 @@ class App extends Component {
                 );
               })}
             </div>
-          </Container>
-        </div>
-        <div>
-          <Container>
-            <h2>調整さん用テキスト</h2>
-            <textarea id="scheduleText" cols={30} rows={10}></textarea>
-            <div>
-              <Button
-                variant="outline-dark"
-                id="copy"
-                onClick={this.copyScheduleText.bind(this)}
-              >
-                コピー
-              </Button>
-            </div>
-          </Container>
-        </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="primary" onClick={this.handleClose}>
+              保存
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </div>
     );
   }
