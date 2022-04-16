@@ -1,6 +1,6 @@
 import { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Container, Button } from 'react-bootstrap';
+import { Container, Button, Form } from 'react-bootstrap';
 
 import { State } from './types/State';
 import { Schedule } from './types/Schedule';
@@ -10,7 +10,7 @@ class App extends Component {
     schedules: [],
   };
 
-  componentDidMount = () => {
+  componentWillMount = () => {
     const today: Date = new Date();
     const daysToSunday: number = 7 - today.getDay();
     let schedules: Array<Schedule> = [];
@@ -38,6 +38,71 @@ class App extends Component {
     });
   };
 
+  componentDidMount = () => {
+    this.setQuietTimeSchedule();
+    this.createScheduleText();
+  };
+
+  handleChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
+    if (event.currentTarget.id === 'quietTime') this.setQuietTimeSchedule();
+    if (event.currentTarget.id === 'farm') this.setFarmSchedule();
+  };
+
+  setQuietTimeSchedule = () => {
+    const quietTimeElement: any = document.getElementById('quietTime')!;
+    if (!quietTimeElement.checked) quietTimeElement.checked = true;
+    const quietTimeSchedules: Array<any> = [
+      {
+        day: '日',
+        times: [14, 15, 16, 17, 18, 19, 20],
+      },
+    ];
+    this.setEventTimeSchedule(quietTimeSchedules);
+  };
+
+  setFarmSchedule = () => {
+    const farmSchedules: Array<any> = [
+      {
+        day: '土',
+        times: [10, 11, 12, 13, 14, 15, 16, 17],
+      },
+      {
+        day: '日',
+        times: [14, 15, 16, 17],
+      },
+    ];
+    this.setEventTimeSchedule(farmSchedules);
+  };
+
+  setEventTimeSchedule = (eventTimeSchedules: Array<any>) => {
+    this.clearSelect();
+    const stateSchedules: Array<Schedule> = this.state.schedules.slice();
+    let dateIndex: number;
+    eventTimeSchedules.forEach((eventTimeSchedule) => {
+      // searchDate
+      for (let i: number = 0; i < stateSchedules.length; i++) {
+        if (stateSchedules[i].day === eventTimeSchedule.day) {
+          dateIndex = i;
+          break;
+        }
+      }
+      eventTimeSchedule.times.forEach((quietTimeTime: number) => {
+        for (
+          let i: number = 0;
+          i < stateSchedules[dateIndex].times.length;
+          i++
+        ) {
+          if (stateSchedules[dateIndex].times[i].time === quietTimeTime) {
+            stateSchedules[dateIndex].times[i].active = true;
+          }
+        }
+      });
+    });
+    this.setState({
+      schedules: stateSchedules,
+    });
+  };
+
   selectSchedule: React.MouseEventHandler<HTMLButtonElement> = (event) => {
     let schedules = this.state.schedules?.slice();
     for (let i: number = 0; i < schedules?.length; i++) {
@@ -55,6 +120,18 @@ class App extends Component {
         }
       }
     }
+  };
+
+  clearSelect = () => {
+    const schedules: Array<Schedule> = this.state.schedules.slice();
+    for (const i in schedules) {
+      for (const j in schedules[i].times) {
+        schedules[i].times[j].active = false;
+      }
+    }
+    this.setState({
+      schedules: schedules,
+    });
   };
 
   createScheduleText = () => {
@@ -90,6 +167,27 @@ class App extends Component {
         <div>
           <Container>
             <h1>次回のイベントの候補時間</h1>
+          </Container>
+        </div>
+        <div>
+          <Container>
+            <h2>イベントを選択</h2>
+            <Form>
+              <Form.Check
+                onChange={this.handleChange.bind(this)}
+                type="radio"
+                name="scheduleType"
+                id="quietTime"
+                label="QT"
+              ></Form.Check>
+              <Form.Check
+                onChange={this.handleChange.bind(this)}
+                type="radio"
+                name="scheduleType"
+                id="farm"
+                label="畑"
+              ></Form.Check>
+            </Form>
           </Container>
         </div>
         <div>
@@ -134,7 +232,7 @@ class App extends Component {
             <textarea id="scheduleText" cols={30} rows={10}></textarea>
             <div>
               <Button
-                variant="outline-success"
+                variant="outline-dark"
                 id="copy"
                 onClick={this.copyScheduleText.bind(this)}
               >
