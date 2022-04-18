@@ -1,10 +1,14 @@
 import { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Container, Button, Form, Modal } from 'react-bootstrap';
 
 import { State } from './types/State';
 import { Schedule } from './types/Schedule';
 import { Time } from './types/Time';
+
+import Title from 'components/Title';
+import SelectEventForm from 'components/SelectEventForm';
+import ScheduleText from 'components/ScheduleText';
+import ScheduleTimeline from 'components/ScheduleTimeline';
 class App extends Component {
   state: State = {
     schedules: [],
@@ -36,7 +40,6 @@ class App extends Component {
     }
     this.setState({
       schedules: schedules,
-      show: this.state.show,
     });
   };
 
@@ -100,7 +103,6 @@ class App extends Component {
     });
     this.setState({
       schedules: stateSchedules,
-      show: this.state.show,
     });
     this.createScheduleText();
   };
@@ -116,7 +118,6 @@ class App extends Component {
           schedules[i].times[j].active = !schedules[i].times[j].active;
           this.setState({
             schedules: schedules,
-            show: this.state.show,
           });
           this.createScheduleText();
           return;
@@ -134,7 +135,6 @@ class App extends Component {
     }
     this.setState({
       schedules: schedules,
-      show: this.state.show,
     });
   };
 
@@ -154,27 +154,14 @@ class App extends Component {
     scheduleTextElement.textContent = scheduleText;
   };
 
-  copyScheduleText: React.MouseEventHandler<HTMLButtonElement> = () => {
-    const scheduleText: string =
-      document.getElementById('scheduleText')!.textContent!;
-    navigator.clipboard.writeText(scheduleText).then(() => {
-      alert(
-        'スケジュールをコピーしました。\n調整さんの「日にち候補」に貼り付けてください。',
-      );
-      window.location.href = 'https://chouseisan.com/#tab2';
-    });
-  };
-
   handleShow = () => {
     this.setState({
-      schedules: this.state.schedules,
       show: true,
     });
   };
 
   handleClose = () => {
     this.setState({
-      schedules: this.state.schedules,
       show: false,
     });
   };
@@ -182,95 +169,15 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <div>
-          <Container>
-            <h1>次回のイベントの候補時間</h1>
-          </Container>
-        </div>
-        <div>
-          <Container>
-            <h2>イベントを選択</h2>
-            <Form>
-              <Form.Check
-                onChange={this.handleChange.bind(this)}
-                type="radio"
-                name="scheduleType"
-                id="quietTime"
-                label="QT"
-              ></Form.Check>
-              <Form.Check
-                onChange={this.handleChange.bind(this)}
-                type="radio"
-                name="scheduleType"
-                id="farm"
-                label="畑"
-              ></Form.Check>
-            </Form>
-          </Container>
-        </div>
-        <div>
-          <Container>
-            <h2>調整さん用テキスト</h2>
-            <textarea id="scheduleText" cols={30} rows={10}></textarea>
-            <div className="mb-1">
-              <Button variant="outline-secondary" onClick={this.handleShow}>
-                時間を細かく指定
-              </Button>
-            </div>
-            <div>
-              <Button
-                variant="primary"
-                id="copy"
-                onClick={this.copyScheduleText.bind(this)}
-              >
-                コピーして調整さんに移動
-              </Button>
-            </div>
-          </Container>
-        </div>
-        <Modal show={this.state.show} onHide={this.handleClose}>
-          <Modal.Header closeButton>
-            <Modal.Title>時間を選択</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <div className="d-flex overflow-scroll">
-              {this.state.schedules?.map((schedule: Schedule) => {
-                return (
-                  <div
-                    className="schedule d-flex flex-column px-1 border-start border-end"
-                    key={`${schedule.year}/${schedule.month}/${schedule.date}`}
-                  >
-                    <h5 className="date-text">
-                      {schedule.month}/{schedule.date}({schedule.day})
-                    </h5>
-                    {schedule.times?.map((time: Time) => (
-                      <Button
-                        className="mx-1 mb-1"
-                        variant="outline-primary"
-                        size="sm"
-                        active={time.active}
-                        data-year={schedule.year}
-                        data-month={schedule.month}
-                        data-date={schedule.date}
-                        data-day={schedule.day}
-                        data-timestamp={time.timestamp}
-                        key={time.timestamp}
-                        onClick={this.selectSchedule.bind(this)}
-                      >
-                        {time.time}:00
-                      </Button>
-                    ))}
-                  </div>
-                );
-              })}
-            </div>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="primary" onClick={this.handleClose}>
-              保存
-            </Button>
-          </Modal.Footer>
-        </Modal>
+        <Title />
+        <SelectEventForm onChange={this.handleChange.bind(this)} />
+        <ScheduleText openModal={this.handleShow} />
+        <ScheduleTimeline
+          schedules={this.state.schedules}
+          show={this.state.show}
+          closeModal={this.handleClose.bind(this)}
+          selectSchedule={this.selectSchedule.bind(this)}
+        />
       </div>
     );
   }
