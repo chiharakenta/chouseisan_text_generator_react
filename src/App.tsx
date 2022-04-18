@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './App.css';
 
 import { State } from './types/State';
 import { Schedule } from './types/Schedule';

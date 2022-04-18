@@ -1,0 +1,9 @@
+.btn-outline-primary:hover {
+  background: none;
+  color: #0d6efd;
+}
+
+.btn-outline-primary.active:hover {
+  background: #0d6efd;
+  color: #ffffff;
+}
